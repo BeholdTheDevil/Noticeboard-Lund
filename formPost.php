@@ -6,31 +6,54 @@
      include "includes/dbh.inc.php";
 
     if(isset($conn) && isset($_POST["submit"])) {
+        /* Debug echo
             echo "<pre>" . print_r($_POST, 1) . "</pre>";
-        $title = filter_input(INPUT_POST, "title", FILTER_SANITIZE_SPECIAL_CHARS);
-        $date_meeting = filter_input(INPUT_POST, "date_meeting", FILTER_SANITIZE_SPECIAL_CHARS);
-        $date_post = filter_input(INPUT_POST, "date_post", FILTER_SANITIZE_SPECIAL_CHARS);
-        $textcontent = filter_input(INPUT_POST, "textcontent", FILTER_SANITIZE_URL);
-        $stub = filter_input(INPUT_POST, "stub", FILTER_SANITIZE_SPECIAL_CHARS);
-        $authority = filter_input(INPUT_POST, "authority", FILTER_SANITIZE_SPECIAL_CHARS);
-        $accountable = filter_input(INPUT_POST, "accountable", FILTER_SANITIZE_NUMBER_INT);
-        $storage_area = filter_input(INPUT_POST, "textcontent", FILTER_SANITIZE_URL);
-        $document = "test/test/test.png";
+        */
         try {
-            echo $accountable;
-            $stmt = $conn->prepare("INSERT INTO Anslagstavla (date_meeting, date_post, textcontent, stub, title, authority, accountable, document, storage_area)
-                    VALUES(:date_meeting, :date_post, :textcontent, :stub, :title, :authority, :accountable, :document, :storage_area)");
-            $stmt->bindParam(":title", $title);
-            $stmt->bindParam(":date_meeting", $date_meeting);
-            $stmt->bindParam(":date_post", $date_post);
-            $stmt->bindParam(":textcontent", $textcontent);
-            $stmt->bindParam(":stub", $stub);
-            $stmt->bindParam(":authority", $authority);
-            $stmt->bindParam(":accountable", $accountable);
-            $stmt->bindParam(":storage_area", $storage_area);
-            $stmt->bindParam(":document", $document);
-            $stmt->execute();
-            echo "hello";
+            //Prepare SQL statement.
+            $stmt = $conn->prepare("INSERT INTO Anslagstavla(date_meeting, date_post, textcontent, stub, title, authority, accountable, document, storage_area)
+                    VALUES(:date_meeting,
+                        :date_post,
+                        :textcontent,
+                        :stub,
+                        :title,
+                        :authority,
+                        :accountable,
+                        :document,
+                        :storage_area)");
+
+            //Array with filters.
+            $args = array(
+                ":date_meeting" => FILTER_SANITIZE_SPECIAL_CHARS,
+                ":date_post" => FILTER_SANITIZE_SPECIAL_CHARS,
+                ":textcontent" => FILTER_SANITIZE_SPECIAL_CHARS,
+                ":stub" => FILTER_SANITIZE_SPECIAL_CHARS,
+                ":title" => FILTER_SANITIZE_SPECIAL_CHARS,
+                ":authority" => FILTER_SANITIZE_SPECIAL_CHARS,
+                ":accountable" => FILTER_VALIDATE_INT,
+                ":document" => FILTER_SANITIZE_URL,
+                ":storage_area" => FILTER_SANITIZE_SPECIAL_CHARS
+            );
+
+            //Array containing variables retrieved from POST.
+            $data = array(
+                ":date_meeting" => $_POST["date_meeting"],
+                ":date_post" => $_POST["date_post"],
+                ":textcontent" => $_POST["textcontent"],
+                ":stub" => $_POST["stub"],
+                ":title" => $_POST["title"],
+                ":authority" => $_POST["authority"],
+                ":accountable" => $_POST["accountable"],
+                ":document" => $_POST["document"],
+                ":storage_area" => $_POST["storage_area"]
+            );
+
+            //Filter array and execute statement with filtered array.
+            filter_var_array($data, $args);
+            $stmt->execute($data);
+
+            //Reset location header to index page.
+            header("Location: /");
         } catch(PDOException $e) {
             echo $e;
         }

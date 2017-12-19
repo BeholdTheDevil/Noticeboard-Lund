@@ -6,14 +6,12 @@
     <title>Anslagstavla</title>
     <link rel="stylesheet" type="text/css" href="static/style/form.css">
     <link rel="stylesheet" type="text/css" href="static/style/stylesheet.css">
-    <script src="static/js/inputTextStyle.js"></script>
-    <script src="hej.js"></script>
+    <script src="static/js/test.js"></script>
 </head>
 <body>
     <div class="form-container">
-    <?php
-        include 'form.php';
-    ?>
+        <a href="form.php">Post</a>
+    <div id="posts"></div>
     </div>
 </body>
 </html>
